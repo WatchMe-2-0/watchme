@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strings"
 	"time"
 
 	"backend/config"
@@ -16,7 +17,7 @@ import (
 
 // Upload movie file to MinIO
 func UploadMovie(c *fiber.Ctx) error {
-	// Get title from form
+	// Get title string
 	title := c.FormValue("title")
 	if title == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Movie title is required"})
@@ -48,9 +49,10 @@ func UploadMovie(c *fiber.Ctx) error {
 	}
 	defer posterSrc.Close()
 
-	// Generate unique filenames
-	movieObject := fmt.Sprintf("%d-%s", time.Now().Unix(), movieFile.Filename)
-	posterObject := fmt.Sprintf("%d-%s", time.Now().Unix(), posterFile.Filename)
+	// Generate unique filenames with timestamp
+	randomID := time.Now().Unix()
+	movieObject := fmt.Sprintf("%d-%s", randomID, movieFile.Filename)
+	posterObject := fmt.Sprintf("%d-%s", randomID, posterFile.Filename)
 
 	// Upload movie to MinIO
 	_, err = config.MinioClient.PutObject(
@@ -65,7 +67,6 @@ func UploadMovie(c *fiber.Ctx) error {
 		log.Printf("❌ Failed to upload movie: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to upload movie"})
 	}
-
 	log.Println("🎬 Movie uploaded to MinIO:", movieObject)
 
 	// Upload poster to MinIO
@@ -81,18 +82,17 @@ func UploadMovie(c *fiber.Ctx) error {
 		log.Printf("❌ Failed to upload poster: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to upload poster"})
 	}
-
 	log.Println("🖼️ Poster uploaded to MinIO:", posterObject)
 
 	// Create URLs
-	movieURL := fmt.Sprintf("http://localhost:9000/movies/%s", movieObject)
-	posterURL := fmt.Sprintf("http://localhost:9000/posters/%s", posterObject)
+	posterURL := fmt.Sprintf("http://localhost:8000/posters/%s", posterObject)
+	streamURL := fmt.Sprintf("http://localhost:8000/stream/%s", movieObject)
 
 	// Save movie metadata in PostgreSQL
 	movie := models.Movie{
 		Title:     title,
 		PosterURL: posterURL,
-		StreamURL: movieURL,
+		StreamURL: streamURL,
 	}
 	result := config.DB.Create(&movie)
 	if result.Error != nil {
@@ -107,34 +107,22 @@ func UploadMovie(c *fiber.Ctx) error {
 		"message":   "Upload successful",
 		"title":     title,
 		"posterURL": posterURL,
-		"streamURL": movieURL,
+		"streamURL": streamURL,
 	})
 }
 
 func ListMovies(c *fiber.Ctx) error {
-	// List all objects in the "movies" bucket
-	objectCh := config.MinioClient.ListObjects(
-		context.Background(),
-		"movies",
-		minio.ListObjectsOptions{},
-	)
+	// Fetch movie metadata from PostgreSQL using Prisma
+	var movies []models.Movie
+	result := config.DB.Find(&movies)
 
-	// Store movie URLs
-	var movies []string
-
-	for object := range objectCh {
-		if object.Err != nil {
-			log.Printf("❌ Failed to list object: %v", object.Err)
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to list movies"})
-		}
-
-		// Generate the public URL for each movie
-		movieURL := fmt.Sprintf("http://localhost:9000/movies/%s", object.Key)
-		movies = append(movies, movieURL)
+	if result.Error != nil {
+		log.Printf("❌ Failed to fetch movies from DB: %v", result.Error)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch movies"})
 	}
 
-	// Return the list of movies
-	return c.JSON(fiber.Map{"movies": movies})
+	// Return the movie list
+	return c.JSON(movies)
 }
 
 func StreamMovie(c *fiber.Ctx) error {
@@ -151,7 +139,7 @@ func StreamMovie(c *fiber.Ctx) error {
 		context.Background(),
 		"movies",
 		movieName,
-		time.Minute*10, // URL expires in 10 minutes
+		time.Minute*10,
 		reqParams,
 	)
 	if err != nil {
@@ -159,6 +147,71 @@ func StreamMovie(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to generate streaming URL"})
 	}
 
-	// Redirect user to the streaming URL
+	return c.Redirect(presignedURL.String(), 302)
+}
+
+func DeleteMovie(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	// Find movie metadata in DB
+	var movie models.Movie
+	result := config.DB.First(&movie, id)
+	if result.Error != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "Movie not found"})
+	}
+
+	// Extract object names from URLs
+	movieObject := getObjectName(movie.StreamURL)
+	posterObject := getObjectName(movie.PosterURL)
+
+	// Delete from MinIO storage
+	err := config.MinioClient.RemoveObject(context.Background(), "movies", movieObject, minio.RemoveObjectOptions{})
+	if err != nil {
+		log.Printf("❌ Failed to delete movie from MinIO: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to delete movie from storage"})
+	}
+
+	err = config.MinioClient.RemoveObject(context.Background(), "posters", posterObject, minio.RemoveObjectOptions{})
+	if err != nil {
+		log.Printf("❌ Failed to delete poster from MinIO: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to delete poster from storage"})
+	}
+
+	// Delete from PostgreSQL
+	config.DB.Delete(&movie)
+
+	return c.JSON(fiber.Map{"message": "Movie deleted successfully"})
+}
+
+// Helper function to extract the object name from a URL
+func getObjectName(urlStr string) string {
+	parsedURL, err := url.Parse(urlStr)
+	if err != nil {
+		log.Printf("❌ Failed to parse URL: %s", urlStr)
+		return ""
+	}
+	parts := strings.Split(parsedURL.Path, "/")
+	return parts[len(parts)-1]
+}
+
+func GetPoster(c *fiber.Ctx) error {
+	posterName := c.Params("name")
+	if posterName == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Poster name is required"})
+	}
+
+	// Generate a pre-signed URL for poster access
+	presignedURL, err := config.MinioClient.PresignedGetObject(
+		context.Background(),
+		"posters",
+		posterName,
+		time.Hour*1,
+		nil,
+	)
+	if err != nil {
+		log.Printf("❌ Failed to generate poster URL: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to generate poster URL"})
+	}
+
 	return c.Redirect(presignedURL.String(), 302)
 }
