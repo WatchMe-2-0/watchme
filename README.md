@@ -68,17 +68,15 @@ and there is an `app.env` file which will you need to configure by going to
 Go here
 `http://localhost:9001/access-keys`
 and create the accesskeys
-![go and create the access keys](https://ibb.co/0RWr88rX)
+![go and create the access keys](ss/Screenshot_20250314_014825.png)
 
-![add name description and create](https://ibb.co/0RWr88rX)
+![add name description and create](ss/Screenshot_20250314_015113.png)
 
-![copy accesskeys and secret keys also you can download csv](https://ibb.co/0RWr88rX)
+![copy accesskeys and secret keys also you can download csv](ss/Screenshot_20250314_015234.png)
 
 add the keys accordingly in `example.env` and also rename the `example.env` to `app.env`
 THIS IS IMPORTANT!!!
-![pust keys in the file](https://ibb.co/0RWr88rX)
-
-![go and create the access keys](https://ibb.co/0RWr88rX)
+![pust keys in the file](ss/Screenshot_20250314_015338.png)
 
 
 ## Api's Work with curl
