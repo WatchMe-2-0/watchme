@@ -106,10 +106,12 @@ To delete
 delete `curl -X DELETE http://localhost:8000/movies/{movie.id}`
 
 to know the ID use
-``
+` curl -X GET http://localhost:8000/movies`
 output
 ```bash
 {"ID":4, -- this is the ID
 "Title":"alooposto",
-"PosterURL":"http://localhost:8000/posters/1741891860-7a32830bdcf1dc41e5245d6a944406a2.jpg","StreamURL":"http://localhost:8000/stream/1741891860-alooposto.mp4","CreatedAt":"2025-03-14T00:21:00.976905+05:30"}
+"PosterURL":"http://localhost:8000/posters/1741891860-7a32830bdcf1dc41e5245d6a944406a2.jpg",
+"StreamURL":"http://localhost:8000/stream/1741891860-alooposto.mp4",
+"CreatedAt":"2025-03-14T00:21:00.976905+05:30"}
 ```
