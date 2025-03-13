@@ -30,12 +30,12 @@ func InitMinio() {
 	MinioClient = client
 	fmt.Println("✅ MinIO Connected Successfully")
 
-	// Ensure required buckets exist
-	createBucket("movies")  // For storing movie files
-	createBucket("posters") // For storing movie posters
+	// Ensure required buckets exist and are public
+	createBucket("movies")
+	createBucket("posters")
 }
 
-// createBucket checks if a bucket exists; if not, it creates it
+// createBucket checks if a bucket exists; if not, it creates it and makes it public
 func createBucket(bucketName string) {
 	exists, err := MinioClient.BucketExists(context.Background(), bucketName)
 	if err != nil {
@@ -48,7 +48,32 @@ func createBucket(bucketName string) {
 			log.Fatalf("❌ Failed to create bucket %s: %v", bucketName, err)
 		}
 		fmt.Printf("✅ Bucket '%s' created successfully\n", bucketName)
+
+		// Set public access policy for the bucket
+		setPublicPolicy(bucketName)
 	} else {
 		fmt.Printf("✅ Bucket '%s' already exists\n", bucketName)
+	}
+}
+
+// setPublicPolicy makes the bucket publicly accessible
+func setPublicPolicy(bucketName string) {
+	policy := fmt.Sprintf(`{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Principal": "*",
+				"Action": "s3:GetObject",
+				"Resource": "arn:aws:s3:::%s/*"
+			}
+		]
+	}`, bucketName)
+
+	err := MinioClient.SetBucketPolicy(context.Background(), bucketName, policy)
+	if err != nil {
+		log.Fatalf("❌ Failed to set public policy for bucket %s: %v", bucketName, err)
+	} else {
+		fmt.Printf("🌍 Bucket '%s' is now publicly accessible\n", bucketName)
 	}
 }
