@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 
 	"watchme/auth"
 	"watchme/config"
 	"watchme/handlers"
 	"watchme/middleware"
 	"watchme/models"
+	engine "watchme/torrent"
 	"watchme/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -51,6 +54,33 @@ func main() {
 		&models.Download{},
 		&models.Session{},
 	)
+
+	// ── Torrent Engine ─────────────────────────────────────────────
+	torrentEngine := engine.GetEngine()
+	if err := torrentEngine.Start(); err != nil {
+		log.Printf("⚠️  Torrent engine failed to start: %v", err)
+	} else {
+		// Start download worker pool
+		pool := engine.GetPool()
+		pool.Start()
+
+		// Register progress listener to update DB
+		torrentEngine.OnProgress(func(update engine.ProgressUpdate) {
+			updates := map[string]interface{}{
+				"progress":   update.Progress,
+				"speed":      update.Speed,
+				"peers":      update.Peers,
+				"eta":        update.ETA,
+				"downloaded":  update.Downloaded,
+				"file_size":  update.Total,
+				"status":     update.Status,
+			}
+			if update.FilePath != "" {
+				updates["file_path"] = update.FilePath
+			}
+			config.DB.Table("downloads").Where("id = ?", update.DownloadID).Updates(updates)
+		})
+	}
 
 	// ── Fiber App ───────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{
@@ -115,8 +145,13 @@ func main() {
 	settingsGroup.Get("/", handlers.HandleGetSettings)
 	settingsGroup.Put("/", handlers.HandleUpdateSettings)
 
-	// Placeholder routes (will be implemented in Part 4+)
-	// authenticated.Post("/downloads", ...)
+	// Download routes
+	authenticated.Post("/downloads", handlers.HandleStartDownload)
+	authenticated.Get("/downloads", handlers.HandleListDownloads)
+	authenticated.Delete("/downloads/:id", handlers.HandleCancelDownload)
+	authenticated.Get("/downloads/progress", handlers.HandleDownloadProgress)
+
+	// Placeholder routes (will be implemented in Part 5)
 	// authenticated.Get("/tmdb/trending", ...)
 
 	// ── Start Server ───────────────────────────────────────────────
@@ -127,6 +162,17 @@ func main() {
 	fmt.Printf("  ║   http://localhost:%-18s ║\n", port)
 	fmt.Printf("  ╚══════════════════════════════════════╝\n")
 	fmt.Printf("\n")
+
+	// ── Graceful Shutdown ──────────────────────────────────────────
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+		<-sigChan
+
+		log.Println("\n🛑 Shutting down...")
+		torrentEngine.Stop()
+		app.Shutdown()
+	}()
 
 	log.Fatal(app.Listen(":" + port))
 }
