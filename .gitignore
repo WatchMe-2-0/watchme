@@ -1,1 +1,38 @@
-app.env
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+watchme
+
+# Go
+backend/vendor/
+backend/tmp/
+
+# Config & Secrets (keep example, ignore actual)
+backend/secrets/app.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# Docker
+*.log
+
+# Local storage (movies/posters are user data, not tracked)
+movies/
+posters/
