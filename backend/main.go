@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"watchme/auth"
 	"watchme/config"
 	"watchme/middleware"
 	"watchme/models"
@@ -53,19 +54,19 @@ func main() {
 	// ── Fiber App ───────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{
 		BodyLimit:             5 * 1024 * 1024 * 1024, // 5GB upload limit
-		StreamRequestBody:     true,                    // Stream large uploads
+		StreamRequestBody:     true,
 		DisableStartupMessage: false,
 		AppName:               "WATCHME",
 	})
 
-	// ── Middleware ──────────────────────────────────────────────────
+	// ── Global Middleware ───────────────────────────────────────────
 	app.Use(middleware.SetupCORS())
 	app.Use(middleware.Logger())
 
 	// ── API Routes ─────────────────────────────────────────────────
 	api := app.Group("/api")
 
-	// Health check
+	// Health check (no auth)
 	api.Get("/health", func(c *fiber.Ctx) error {
 		return utils.Success(c, "WATCHME is running", fiber.Map{
 			"version": "2.0.0",
@@ -73,23 +74,36 @@ func main() {
 		})
 	})
 
-	// Auth status — check if admin exists (no auth required)
-	api.Get("/auth/status", func(c *fiber.Ctx) error {
-		var count int64
-		config.DB.Model(&models.User{}).Where("role = ?", "admin").Count(&count)
-		return utils.SuccessData(c, fiber.Map{
-			"setup_complete": count > 0,
-		})
-	})
+	// ── Auth Routes (no auth required) ──────────────────────────────
+	authGroup := api.Group("/auth")
+	authGroup.Get("/status", auth.HandleAuthStatus)
+	authGroup.Post("/setup", auth.HandleSetup)
+	authGroup.Post("/login", auth.HandleLogin)
+	authGroup.Post("/logout", auth.HandleLogout)
+	authGroup.Post("/recovery", auth.HandleRecovery)
 
-	// Placeholder route groups (will be implemented in Part 2+)
-	// api.Post("/auth/setup", ...)
-	// api.Post("/auth/login", ...)
-	// api.Get("/profiles", ...)
-	// api.Get("/movies", ...)
-	// api.Get("/stream/:id", ...)
-	// api.Post("/downloads", ...)
-	// api.Get("/tmdb/trending", ...)
+	// ── Profile Routes (public for listing, admin for management) ───
+	profileGroup := api.Group("/profiles")
+	profileGroup.Get("/", auth.HandleListProfiles)         // Public: profile selection screen
+	profileGroup.Get("/avatars", auth.HandleGetAvatars)     // Public: available avatars
+
+	// Admin-only profile management
+	profileAdmin := profileGroup.Group("/", auth.RequireAuth(), auth.RequireAdmin())
+	profileAdmin.Post("/", auth.HandleCreateProfile)
+	profileAdmin.Put("/:id", auth.HandleUpdateProfile)
+	profileAdmin.Delete("/:id", auth.HandleDeleteProfile)
+
+	// ── Authenticated Routes ────────────────────────────────────────
+	authenticated := api.Group("/", auth.RequireAuth(), auth.KidsFilter())
+
+	// Password management (admin only)
+	authenticated.Put("/auth/password", auth.HandleChangePassword)
+
+	// Placeholder routes (will be implemented in Part 3+)
+	// authenticated.Get("/movies", ...)
+	// authenticated.Get("/stream/:id", ...)
+	// authenticated.Post("/downloads", ...)
+	// authenticated.Get("/tmdb/trending", ...)
 
 	// ── Start Server ───────────────────────────────────────────────
 	port := cfg.ServerPort
