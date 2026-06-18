@@ -1,24 +1,63 @@
+# ═══════════════════════════════════════════════════════════════════
+# WATCHME — Docker Compose
+# Single command: docker compose up -d
+# ═══════════════════════════════════════════════════════════════════
+
 services:
+  # ── PostgreSQL Database ──────────────────────────────────────────
   postgres:
-    image: postgres:15
-    container_name: watchme-db
-    restart: always
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: moviesdb
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: watchme
+      POSTGRES_USER: watchme
+      POSTGRES_PASSWORD: watchme_secure_2024
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d moviesdb"]
+      test: ["CMD-SHELL", "pg_isready -U watchme"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # Backend and Frontend Dockerfiles will be added in Part 9
-  # For now, run the backend locally with: cd backend && go run main.go
+  # ── Go Backend ───────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=watchme
+      - DB_PASSWORD=watchme_secure_2024
+      - DB_NAME=watchme
+      - SERVER_PORT=8000
+    volumes:
+      - movies_data:/data/movies
+      - posters_data:/data/posters
+      - config_data:/data/config
+    ports:
+      - "8000:8000"
+
+  # ── Vite Frontend (nginx) ───────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres_data:
+  movies_data:
+  posters_data:
+  config_data:

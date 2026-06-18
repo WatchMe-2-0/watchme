@@ -1,117 +1,136 @@
+# 🎬 WATCHME
 
-# WatchME
+**Self-hosted movie streaming platform for your local network.**
 
-A movie streaming backend
+Drop a magnet link, WATCHME downloads the movie and streams it to any device on your network — no cloud, no subscriptions.
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Go-1.24-00ADD8?style=flat&logo=go" />
+  <img src="https://img.shields.io/badge/Vite-6-646CFF?style=flat&logo=vite" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat&logo=postgresql" />
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker" />
+</p>
 
+---
 
-## Run Locally
+## Features
 
-Clone the project
+- 🧲 **Magnet Link Downloads** — Paste a magnet link, movie downloads and becomes streamable
+- 📡 **Local Network Streaming** — Any device on your WiFi can watch (phone, TV, tablet)
+- 🔐 **Multi-Profile Auth** — Netflix-style profiles with PIN codes and kids mode
+- 🎬 **TMDB Integration** — Browse trending, top-rated, search movies with posters
+- 🌌 **GPU Aurora Shader** — GLSL-powered Icelandic aurora borealis background
+- 🎨 **3 Themes** — Tron Blue (default), Night Mode, Dracula
+- 🔒 **Admin Controls** — Manage profiles, settings, recovery key
+- 📊 **Real-time Downloads** — SSE progress with speed, ETA, peer count
+- 🐳 **Docker Ready** — Single `docker compose up` to run everything
+
+---
+
+## Quick Start
+
+### Docker (Recommended)
 
 ```bash
-  gh repo clone WatchMe-2-0/watchme
+git clone https://github.com/WatchMe-2-0/watchme.git
+cd watchme
+docker compose up -d
 ```
 
-Go to the project directory
+Open `http://localhost:3000` in your browser.
+
+### Manual (Development)
+
+**Prerequisites:** Go 1.24+, Node.js 22+, PostgreSQL 16
 
 ```bash
-  cd watchme
+# Backend
+cd backend
+cp secrets/example.env .env  # Configure database
+go mod tidy
+go run .
+
+# Frontend (new terminal)
+cd frontend
+npm install
+npm run dev
 ```
 
-Install dependencies
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8000`
 
-```bash
-  go mod tidy
+---
+
+## Architecture
+
+```
+watchme/
+├── backend/           # Go (Fiber) API server
+│   ├── auth/          # JWT, middleware, profile handlers
+│   ├── config/        # JSON config, DB connection
+│   ├── handlers/      # Movie, download, TMDB, settings
+│   ├── models/        # GORM models
+│   ├── torrent/       # anacrolix/torrent engine + worker pool
+│   ├── tmdb/          # TMDB API client + LRU cache
+│   ├── middleware/     # CORS, logger
+│   └── utils/         # Response helpers, JWT secret gen
+├── frontend/          # Vite + Vanilla JS SPA
+│   ├── src/aurora/    # GLSL aurora shader (Three.js)
+│   ├── src/pages/     # Landing, Setup, Dashboard, Browse...
+│   ├── src/router/    # Hash-based SPA router
+│   ├── src/state/     # Reactive pub/sub store
+│   └── src/styles/    # CSS design system + themes
+└── docker-compose.yml # PostgreSQL + Backend + Frontend
 ```
 
-Before starting the server run
+---
 
+## API Endpoints
 
-```bash
-  docker-compose up
-```
-By running this
-- `minio-storage`
-- `postgres-db`
-these two `container` will start locally for
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/health` | — | Health check |
+| GET | `/api/auth/status` | — | Check setup status |
+| POST | `/api/auth/setup` | — | Create admin account |
+| POST | `/api/auth/login` | — | PIN-based login |
+| POST | `/api/auth/logout` | ✓ | Logout |
+| GET | `/api/profiles/` | — | List profiles |
+| POST | `/api/profiles/` | Admin | Create profile |
+| GET | `/api/movies` | ✓ | List movies |
+| POST | `/api/upload` | ✓ | Upload movie file |
+| GET | `/api/stream/:id` | ✓ | Stream movie (range requests) |
+| DELETE | `/api/movies/:id` | ✓ | Delete movie |
+| POST | `/api/downloads` | ✓ | Start torrent download |
+| GET | `/api/downloads/progress` | ✓ | SSE download progress |
+| GET | `/api/tmdb/trending` | ✓ | TMDB trending movies |
+| GET | `/api/tmdb/search` | ✓ | Search TMDB |
 
-minio
-- `http:localhost:9001` -- minio client web ui
-- `http:localhost:9000` -- minio server api
+---
 
-postgres-db
-- `http:localhost:5432`
+## Configuration
 
+After first setup, configure in Settings:
 
-## Environment Variables
+- **TMDB API Key** — Get one free at [themoviedb.org](https://www.themoviedb.org/settings/api)
+- **Download Directory** — Where movies are stored
+- **Max Concurrent Downloads** — Parallel torrent slots (default: 3)
 
-This are the basic yml written in `docker-compose.yml`
-for `postgres`
-```bash
-  environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: moviesdb`
-```
-for `minio`
-```bash
-      environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin123
-```
+---
 
-and there is an `app.env` file which will you need to configure by going to
+## Tech Stack
 
+| Layer | Technology |
+|-------|-----------|
+| Backend | Go 1.24, Fiber, GORM |
+| Database | PostgreSQL 16 |
+| Torrent | anacrolix/torrent |
+| Frontend | Vite, Vanilla JS, Three.js |
+| Styling | CSS (glassmorphism, GLSL shaders) |
+| Auth | JWT (HS256), bcrypt, httpOnly cookies |
+| Deployment | Docker Compose |
 
-## Screenshots
-Go here
-`http://localhost:9001/access-keys`
-and create the accesskeys
-![go and create the access keys](ss/Screenshot_20250314_014825.png)
+---
 
-![add name description and create](ss/Screenshot_20250314_015113.png)
+## License
 
-![copy accesskeys and secret keys also you can download csv](ss/Screenshot_20250314_015234.png)
-
-add the keys accordingly in `example.env` and also rename the `example.env` to `app.env`
-THIS IS IMPORTANT!!!
-![pust keys in the file](ss/Screenshot_20250314_015338.png)
-
-
-## Api's Work with curl
-
-
-using `curl`
-
-To uploading movies
-Post `http://localhost/upload`
-```bash
-curl -X POST http://localhost:8000/upload \
-  -F "title=Interstellar" \
-  -F "movie=@/path/to/interstellar.mp4" \
-  -F "poster=@/path/to/interstellar.jpg"
-```
-To Get all movies
-Get `http://localhost:8000/movies`
-```bash
- curl -X GET http://localhost:8000/movies
-```
-To stream the movie
-GET `http://localhost:8000/stream/:name`
-```bash
-curl -X GET http://localhost:8000/stream/1741891860-interstellar.mp4
-```
-To delete
-delete `curl -X DELETE http://localhost:8000/movies/{movie.id}`
-
-to know the ID use
-` curl -X GET http://localhost:8000/movies`
-output
-```bash
-{"ID":4, -- this is the ID
-"Title":"alooposto",
-"PosterURL":"http://localhost:8000/posters/1741891860-7a32830bdcf1dc41e5245d6a944406a2.jpg",
-"StreamURL":"http://localhost:8000/stream/1741891860-alooposto.mp4",
-"CreatedAt":"2025-03-14T00:21:00.976905+05:30"}
-```
+MIT — Do what you want, just don't blame us.
