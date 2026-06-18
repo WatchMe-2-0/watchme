@@ -7,6 +7,7 @@ import { api } from '../api/client.js';
 import { navigate } from '../router/router.js';
 import { store } from '../state/store.js';
 import { toastSuccess, toastError } from '../components/Toast.js';
+import { createVideoPlayer } from '../components/VideoPlayer.js';
 
 export async function renderDashboard() {
   const container = document.createElement('div');
@@ -32,6 +33,7 @@ export async function renderDashboard() {
             ? `<img src="${m.poster_url}" alt="${m.title}" loading="lazy" />`
             : `<div class="movie-poster-placeholder">🎬</div>`
           }
+          <div class="movie-play-overlay" data-play-id="${m.id}" data-play-title="${m.title}">▶</div>
         </div>
         <div class="movie-info">
           <div class="movie-title">${m.title}</div>
@@ -210,6 +212,24 @@ export async function renderDashboard() {
         aspect-ratio: 2/3;
         overflow: hidden;
         background: var(--color-surface);
+        position: relative;
+      }
+
+      .movie-play-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: hsla(0,0%,0%,0.5);
+        font-size: 2rem;
+        opacity: 0;
+        transition: opacity var(--transition-fast);
+        cursor: pointer;
+      }
+
+      .movie-card:hover .movie-play-overlay {
+        opacity: 1;
       }
 
       .movie-poster img {
@@ -410,7 +430,17 @@ export async function renderDashboard() {
       }
     });
 
-    // Movie card clicks
+    // Play button overlays
+    container.querySelectorAll('[data-play-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.playId;
+        const title = btn.dataset.playTitle;
+        createVideoPlayer(api.getStreamUrl(id), title);
+      });
+    });
+
+    // Movie card clicks (go to detail if not clicking play)
     container.querySelectorAll('[data-movie-id]').forEach(card => {
       card.addEventListener('click', () => navigate(`/movie/${card.dataset.movieId}`));
     });

@@ -5,6 +5,7 @@
 import { api } from '../api/client.js';
 import { navigate } from '../router/router.js';
 import { toastSuccess, toastError } from '../components/Toast.js';
+import { createVideoPlayer } from '../components/VideoPlayer.js';
 
 export async function renderMovieDetail(params) {
   const movieId = params.id;
@@ -150,6 +151,7 @@ export async function renderMovieDetail(params) {
       <div class="movie-actions">
         <button class="btn btn-ghost" id="back-btn">← Back</button>
         ${movie.file_path ? `<button class="btn btn-primary" id="play-btn">▶ Play</button>` : ''}
+        ${movie.file_path ? `<button class="btn btn-danger" id="delete-btn">🗑 Delete</button>` : ''}
         ${movie.id && !movie.file_path ? `<button class="btn btn-primary" id="magnet-btn">🧲 Paste Magnet Link</button>` : ''}
       </div>
     </div>
@@ -159,8 +161,18 @@ export async function renderMovieDetail(params) {
     document.getElementById('back-btn')?.addEventListener('click', () => history.back());
     document.getElementById('play-btn')?.addEventListener('click', () => {
       if (movie.id) {
-        const streamUrl = api.getStreamUrl(movie.id);
-        window.open(streamUrl, '_blank');
+        createVideoPlayer(api.getStreamUrl(movie.id), movie.title);
+      }
+    });
+    document.getElementById('delete-btn')?.addEventListener('click', async () => {
+      if (confirm(`Delete "${movie.title}"? This removes the file from disk.`)) {
+        try {
+          await api.deleteMovie(movie.id);
+          toastSuccess('Movie deleted');
+          navigate('/dashboard');
+        } catch (e) {
+          toastError(e.message);
+        }
       }
     });
   }, 0);

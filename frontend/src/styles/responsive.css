@@ -1,0 +1,281 @@
+/* ═══════════════════════════════════════════════════════════════════
+   WATCHME — Responsive Breakpoints
+   Mobile-first responsive overrides
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (< 1024px) ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 60px;
+  }
+
+  .main-content {
+    padding: var(--space-lg) var(--space-lg) !important;
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    gap: var(--space-md) !important;
+  }
+
+  .browse-card {
+    flex: 0 0 130px !important;
+  }
+
+  .movie-hero-content {
+    padding: var(--space-lg) !important;
+    gap: var(--space-lg) !important;
+  }
+
+  .movie-detail-poster {
+    width: 140px !important;
+  }
+
+  .movie-detail-title {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ── Mobile (< 768px) ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+  }
+
+  /* Sidebar becomes bottom nav */
+  .sidebar {
+    width: 100% !important;
+    height: 60px !important;
+    min-height: auto !important;
+    flex-direction: row !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    padding: var(--space-sm) !important;
+    border-right: none !important;
+    border-top: 1px solid var(--glass-border) !important;
+    z-index: 1000 !important;
+    justify-content: space-around !important;
+    gap: 0 !important;
+    animation: none !important;
+  }
+
+  .sidebar-icon {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.1rem !important;
+  }
+
+  .sidebar-icon .tooltip {
+    display: none !important;
+  }
+
+  .sidebar-spacer,
+  .sidebar-wordmark {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: var(--space-md) !important;
+    padding-bottom: 80px !important; /* Space for bottom nav */
+  }
+
+  /* Movie grid — 2 columns on phone */
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--space-sm) !important;
+  }
+
+  .movie-title {
+    font-size: 0.7rem !important;
+  }
+
+  /* Browse */
+  .browse-card {
+    flex: 0 0 110px !important;
+  }
+
+  .browse-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .browse-search {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .genre-tabs {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: var(--space-sm) !important;
+  }
+
+  /* Movie Detail */
+  #movie-detail-page {
+    margin-left: 0 !important;
+  }
+
+  .movie-hero {
+    height: 40vh !important;
+    min-height: 280px !important;
+  }
+
+  .movie-hero-content {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: var(--space-md) !important;
+  }
+
+  .movie-detail-poster {
+    width: 120px !important;
+  }
+
+  .movie-detail-title {
+    font-size: 1.2rem !important;
+  }
+
+  .movie-detail-body {
+    padding: var(--space-md) !important;
+  }
+
+  .movie-actions {
+    flex-wrap: wrap !important;
+  }
+
+  /* Downloads */
+  #downloads-page {
+    margin-left: 0 !important;
+    padding: var(--space-md) !important;
+    padding-bottom: 80px !important;
+  }
+
+  .dl-item-meta {
+    flex-wrap: wrap !important;
+    gap: var(--space-sm) !important;
+  }
+
+  /* Settings */
+  #settings-page {
+    margin-left: 0 !important;
+    padding: var(--space-md) !important;
+    padding-bottom: 80px !important;
+  }
+
+  .theme-selector {
+    flex-direction: column !important;
+  }
+
+  /* Browse */
+  #browse-page {
+    margin-left: 0 !important;
+    padding: var(--space-md) !important;
+    padding-bottom: 80px !important;
+  }
+
+  /* Setup / Profile / Pin — already centered, just adjust sizing */
+  .setup-card,
+  .recovery-card {
+    padding: var(--space-lg) !important;
+    margin: var(--space-md) !important;
+  }
+
+  .pin-keypad {
+    max-width: 200px !important;
+  }
+
+  .pin-key {
+    width: 54px !important;
+    height: 54px !important;
+    font-size: 1.1rem !important;
+  }
+
+  .profiles-grid {
+    gap: var(--space-md) !important;
+  }
+
+  .profile-card {
+    padding: var(--space-md) var(--space-lg) !important;
+    min-width: 110px !important;
+  }
+
+  .profile-avatar {
+    font-size: 2.2rem !important;
+  }
+
+  /* Modal */
+  .modal-card {
+    width: 95% !important;
+    padding: var(--space-lg) !important;
+  }
+
+  /* Landing */
+  .landing-logo {
+    font-size: clamp(2rem, 12vw, 4rem) !important;
+  }
+
+  /* Video Player controls */
+  .vp-controls {
+    padding: var(--space-sm) var(--space-md) !important;
+  }
+
+  .vp-volume-group {
+    display: none !important; /* Hide volume slider on mobile */
+  }
+}
+
+/* ── Small phone (< 375px) ───────────────────────────────────────── */
+@media (max-width: 375px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .section-title,
+  .browse-title,
+  .dl-title,
+  .settings-title {
+    font-size: 1rem !important;
+  }
+}
+
+/* ── Touch device improvements ────────────────────────────────────── */
+@media (hover: none) {
+  /* Make hover effects work as permanent on touch */
+  .movie-play-overlay {
+    opacity: 0.6 !important;
+    background: hsla(0,0%,0%,0.3) !important;
+  }
+
+  .browse-card-overlay {
+    opacity: 1 !important;
+  }
+
+  /* Larger touch targets */
+  .btn {
+    min-height: 44px;
+  }
+
+  .sidebar-icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ── Landscape orientation on mobile ─────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .sidebar {
+    height: 48px !important;
+  }
+
+  .sidebar-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .main-content {
+    padding-bottom: 60px !important;
+  }
+}

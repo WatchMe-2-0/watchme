@@ -4,6 +4,7 @@
 
 import './styles/index.css';
 import './styles/themes.css';
+import './styles/responsive.css';
 
 import { initAurora, setAuroraTheme } from './aurora/aurora.js';
 import { registerRoute, initRouter, navigate } from './router/router.js';
