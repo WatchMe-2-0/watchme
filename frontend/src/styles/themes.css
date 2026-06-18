@@ -1,0 +1,63 @@
+/* ═══════════════════════════════════════════════════════════════════
+   WATCHME — Theme Variants
+   Three themes: Default (Tron Blue), Night Mode, Dracula
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Night Mode ──────────────────────────────────────────────────── */
+[data-theme="night"] {
+  --color-primary: hsl(215, 90%, 65%);
+  --color-primary-rgb: 74, 158, 255;
+  --color-primary-glow: hsla(215, 90%, 65%, 0.3);
+  --color-primary-dim: hsl(215, 60%, 35%);
+  --color-primary-bright: hsl(215, 90%, 75%);
+
+  --color-bg: #0a0a0f;
+  --color-bg-rgb: 10, 10, 15;
+
+  --color-surface: hsla(230, 20%, 12%, 0.5);
+  --color-surface-hover: hsla(230, 20%, 16%, 0.6);
+
+  --color-text: hsl(0, 0%, 88%);
+  --color-text-dim: hsl(0, 0%, 50%);
+
+  --glass-bg: hsla(230, 15%, 10%, 0.6);
+  --glass-border: hsla(215, 90%, 65%, 0.1);
+  --glass-border-hover: hsla(215, 90%, 65%, 0.2);
+}
+
+/* ── Dracula ─────────────────────────────────────────────────────── */
+[data-theme="dracula"] {
+  --color-primary: hsl(265, 90%, 78%);
+  --color-primary-rgb: 189, 147, 249;
+  --color-primary-glow: hsla(265, 90%, 78%, 0.3);
+  --color-primary-dim: hsl(265, 60%, 45%);
+  --color-primary-bright: hsl(265, 90%, 85%);
+
+  --color-bg: #0d0b1a;
+  --color-bg-rgb: 13, 11, 26;
+
+  --color-surface: hsla(265, 20%, 12%, 0.5);
+  --color-surface-hover: hsla(265, 20%, 16%, 0.6);
+
+  --color-text: hsl(60, 30%, 96%);
+  --color-text-dim: hsl(230, 15%, 55%);
+
+  --color-success: hsl(135, 70%, 55%);
+  --color-danger: hsl(0, 100%, 67%);
+  --color-warning: hsl(65, 90%, 72%);
+
+  --glass-bg: hsla(265, 15%, 10%, 0.6);
+  --glass-border: hsla(265, 90%, 78%, 0.12);
+  --glass-border-hover: hsla(265, 90%, 78%, 0.25);
+}
+
+/* Dracula accent (red) for specific highlights */
+[data-theme="dracula"] .accent {
+  color: hsl(0, 100%, 67%);
+}
+
+[data-theme="dracula"] .accent-glow {
+  text-shadow:
+    0 0 10px hsla(0, 100%, 67%, 0.4),
+    0 0 20px hsla(0, 100%, 67%, 0.2);
+}

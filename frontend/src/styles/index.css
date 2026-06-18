@@ -1,0 +1,441 @@
+/* ═══════════════════════════════════════════════════════════════════
+   WATCHME — Design System
+   Tron-inspired electric blue on pure black with full glassmorphism
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Reset ───────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── Theme Tokens (Default — Tron Blue on Black) ─────────────────── */
+:root {
+  /* Primary — Electric mid-blue */
+  --color-primary: hsl(195, 100%, 50%);
+  --color-primary-rgb: 0, 191, 255;
+  --color-primary-glow: hsla(195, 100%, 50%, 0.4);
+  --color-primary-dim: hsl(195, 80%, 30%);
+  --color-primary-bright: hsl(195, 100%, 65%);
+
+  /* Background */
+  --color-bg: #050505;
+  --color-bg-rgb: 5, 5, 5;
+
+  /* Surface (Glass) */
+  --color-surface: hsla(200, 20%, 10%, 0.5);
+  --color-surface-hover: hsla(200, 20%, 15%, 0.6);
+  --color-surface-active: hsla(200, 20%, 20%, 0.7);
+
+  /* Text */
+  --color-text: hsl(0, 0%, 95%);
+  --color-text-dim: hsl(0, 0%, 55%);
+  --color-text-muted: hsl(0, 0%, 35%);
+
+  /* Accents */
+  --color-success: hsl(145, 80%, 45%);
+  --color-success-glow: hsla(145, 80%, 45%, 0.3);
+  --color-danger: hsl(0, 80%, 55%);
+  --color-danger-glow: hsla(0, 80%, 55%, 0.3);
+  --color-warning: hsl(40, 90%, 55%);
+
+  /* Glass */
+  --glass-bg: hsla(200, 15%, 8%, 0.55);
+  --glass-border: hsla(195, 100%, 50%, 0.12);
+  --glass-border-hover: hsla(195, 100%, 50%, 0.25);
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.5);
+
+  /* Font */
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Sidebar */
+  --sidebar-width: 72px;
+  --sidebar-expanded: 240px;
+}
+
+/* ── Aurora Canvas ───────────────────────────────────────────────── */
+#aurora-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── App Container ───────────────────────────────────────────────── */
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* ── Glassmorphism Base ──────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass:hover {
+  border-color: var(--glass-border-hover);
+}
+
+/* ── Typography ──────────────────────────────────────────────────── */
+.font-mono { font-family: var(--font-mono); }
+.font-sans { font-family: var(--font-sans); }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* ── Glow Text ───────────────────────────────────────────────────── */
+.glow-text {
+  color: var(--color-primary);
+  text-shadow:
+    0 0 10px var(--color-primary-glow),
+    0 0 20px var(--color-primary-glow),
+    0 0 40px hsla(195, 100%, 50%, 0.2);
+}
+
+.glow-text-strong {
+  color: var(--color-primary-bright);
+  text-shadow:
+    0 0 10px var(--color-primary-glow),
+    0 0 30px var(--color-primary-glow),
+    0 0 60px hsla(195, 100%, 50%, 0.3),
+    0 0 100px hsla(195, 100%, 50%, 0.15);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dim));
+  color: #000;
+  box-shadow: 0 4px 15px var(--color-primary-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px var(--color-primary-glow);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--glass-border);
+}
+
+.btn-ghost:hover {
+  background: var(--color-surface);
+  border-color: var(--glass-border-hover);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--color-danger), hsl(0, 80%, 40%));
+  color: white;
+  box-shadow: 0 4px 15px var(--color-danger-glow);
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  font-size: 1.1rem;
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all var(--transition-normal);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px hsla(195, 100%, 50%, 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-dim);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* ── Animations ──────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 10px var(--color-primary-glow),
+      0 0 20px var(--color-primary-glow),
+      0 0 40px hsla(195, 100%, 50%, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 15px var(--color-primary-glow),
+      0 0 30px var(--color-primary-glow),
+      0 0 60px hsla(195, 100%, 50%, 0.3),
+      0 0 100px hsla(195, 100%, 50%, 0.15);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+@keyframes progress-glow {
+  0% { box-shadow: 0 0 5px var(--color-success-glow); }
+  50% { box-shadow: 0 0 15px var(--color-success-glow), 0 0 30px var(--color-success-glow); }
+  100% { box-shadow: 0 0 5px var(--color-success-glow); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn var(--transition-slow) both; }
+.animate-fade-in-up { animation: fadeInUp var(--transition-slow) both; }
+.animate-fade-in-scale { animation: fadeInScale var(--transition-slow) both; }
+.animate-slide-left { animation: slideInLeft var(--transition-slow) both; }
+.animate-slide-right { animation: slideInRight var(--transition-slow) both; }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-glow { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-shake { animation: shake 0.4s ease-in-out; }
+
+/* Staggered animation delays */
+.delay-1 { animation-delay: 100ms; }
+.delay-2 { animation-delay: 200ms; }
+.delay-3 { animation-delay: 300ms; }
+.delay-4 { animation-delay: 400ms; }
+.delay-5 { animation-delay: 500ms; }
+
+/* ── Page Transitions ────────────────────────────────────────────── */
+.page-enter {
+  animation: fadeInUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.page-exit {
+  animation: fadeIn 200ms ease reverse both;
+}
+
+/* ── Toast ────────────────────────────────────────────────────────── */
+#toast-container {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.toast {
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  animation: slideInRight 300ms ease both;
+  max-width: 350px;
+}
+
+.toast-success {
+  background: hsla(145, 80%, 20%, 0.9);
+  border: 1px solid var(--color-success);
+  color: hsl(145, 80%, 75%);
+}
+
+.toast-error {
+  background: hsla(0, 80%, 20%, 0.9);
+  border: 1px solid var(--color-danger);
+  color: hsl(0, 80%, 75%);
+}
+
+.toast-info {
+  background: hsla(195, 80%, 15%, 0.9);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary-bright);
+}
+
+/* ── Utility ─────────────────────────────────────────────────────── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.text-center { text-align: center; }
+.text-dim { color: var(--color-text-dim); }
+.text-primary { color: var(--color-primary); }
+.text-sm { font-size: 0.85rem; }
+.text-xs { font-size: 0.75rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.5rem; }
+
+/* ── Loader ──────────────────────────────────────────────────────── */
+.loader {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--glass-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loader-lg {
+  width: 48px;
+  height: 48px;
+  border-width: 3px;
+}
