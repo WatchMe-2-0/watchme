@@ -9,15 +9,15 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: watchme
-      POSTGRES_USER: watchme
-      POSTGRES_PASSWORD: watchme_secure_2024
+      POSTGRES_DB: moviesdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U watchme"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d moviesdb"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -34,9 +34,9 @@ services:
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=watchme
-      - DB_PASSWORD=watchme_secure_2024
-      - DB_NAME=watchme
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=moviesdb
       - SERVER_PORT=8000
     volumes:
       - movies_data:/data/movies
