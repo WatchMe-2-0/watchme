@@ -8,6 +8,7 @@ import (
 
 	"watchme/auth"
 	"watchme/config"
+	"watchme/handlers"
 	"watchme/middleware"
 	"watchme/models"
 	"watchme/utils"
@@ -93,15 +94,28 @@ func main() {
 	profileAdmin.Put("/:id", auth.HandleUpdateProfile)
 	profileAdmin.Delete("/:id", auth.HandleDeleteProfile)
 
+	// ── Poster Route (no auth — needed for image loading) ───────────
+	api.Get("/posters/:name", handlers.HandleGetPoster)
+
 	// ── Authenticated Routes ────────────────────────────────────────
 	authenticated := api.Group("/", auth.RequireAuth(), auth.KidsFilter())
 
 	// Password management (admin only)
 	authenticated.Put("/auth/password", auth.HandleChangePassword)
 
-	// Placeholder routes (will be implemented in Part 3+)
-	// authenticated.Get("/movies", ...)
-	// authenticated.Get("/stream/:id", ...)
+	// Movie routes
+	authenticated.Get("/movies", handlers.HandleListMovies)
+	authenticated.Get("/movies/:id", handlers.HandleGetMovie)
+	authenticated.Post("/upload", handlers.HandleUploadMovie)
+	authenticated.Delete("/movies/:id", handlers.HandleDeleteMovie)
+	authenticated.Get("/stream/:id", handlers.HandleStreamMovie)
+
+	// Settings routes (admin only)
+	settingsGroup := authenticated.Group("/settings", auth.RequireAdmin())
+	settingsGroup.Get("/", handlers.HandleGetSettings)
+	settingsGroup.Put("/", handlers.HandleUpdateSettings)
+
+	// Placeholder routes (will be implemented in Part 4+)
 	// authenticated.Post("/downloads", ...)
 	// authenticated.Get("/tmdb/trending", ...)
 
