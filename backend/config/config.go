@@ -44,16 +44,24 @@ var (
 	cfgPath string
 )
 
-// DefaultConfig returns sensible defaults
+// getEnv returns the environment variable if set, otherwise fallback
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
+
+// DefaultConfig returns sensible defaults, falling back to environment variables
 func DefaultConfig() *AppConfig {
 	homeDir, _ := os.UserHomeDir()
 	return &AppConfig{
-		ServerPort:                "8000",
-		DBHost:                    "localhost",
-		DBPort:                    "5432",
-		DBUser:                    "admin",
-		DBPassword:                "admin",
-		DBName:                    "moviesdb",
+		ServerPort:                getEnv("SERVER_PORT", "8000"),
+		DBHost:                    getEnv("DB_HOST", "localhost"),
+		DBPort:                    getEnv("DB_PORT", "5432"),
+		DBUser:                    getEnv("DB_USER", "admin"),
+		DBPassword:                getEnv("DB_PASSWORD", "admin"),
+		DBName:                    getEnv("DB_NAME", "moviesdb"),
 		DownloadDir:               filepath.Join(homeDir, "watchme", "movies"),
 		PosterDir:                 filepath.Join(homeDir, "watchme", "posters"),
 		TMDBApiKey:                "",
@@ -89,6 +97,14 @@ func LoadConfig(path string) *AppConfig {
 		log.Printf("⚠️  Failed to parse config: %v, using defaults", err)
 		cfg = DefaultConfig()
 	}
+
+	// Apply environment variable overrides for Docker compatibility
+	if env := os.Getenv("DB_HOST"); env != "" { cfg.DBHost = env }
+	if env := os.Getenv("DB_PORT"); env != "" { cfg.DBPort = env }
+	if env := os.Getenv("DB_USER"); env != "" { cfg.DBUser = env }
+	if env := os.Getenv("DB_PASSWORD"); env != "" { cfg.DBPassword = env }
+	if env := os.Getenv("DB_NAME"); env != "" { cfg.DBName = env }
+	if env := os.Getenv("SERVER_PORT"); env != "" { cfg.ServerPort = env }
 
 	Cfg = cfg
 	return cfg
