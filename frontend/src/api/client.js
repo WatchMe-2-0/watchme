@@ -111,7 +111,7 @@ class ApiClient {
 
   // SSE for download progress
   subscribeProgress(onMessage) {
-    const url = `${API_BASE}/downloads/progress`;
+    const url = `${API_BASE}/downloads/progress?token=${encodeURIComponent(this.token)}`;
     const eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {

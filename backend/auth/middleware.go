@@ -61,7 +61,7 @@ func KidsFilter() fiber.Handler {
 	}
 }
 
-// extractToken gets the JWT token from cookie or Authorization header
+// extractToken gets the JWT token from cookie, Authorization header, or query parameter
 func extractToken(c *fiber.Ctx) string {
 	// Try cookie first
 	token := c.Cookies("watchme_token")
@@ -73,6 +73,12 @@ func extractToken(c *fiber.Ctx) string {
 	auth := c.Get("Authorization")
 	if auth != "" && strings.HasPrefix(auth, "Bearer ") {
 		return strings.TrimPrefix(auth, "Bearer ")
+	}
+
+	// Fall back to query parameter (needed for EventSource/SSE)
+	token = c.Query("token")
+	if token != "" {
+		return token
 	}
 
 	return ""
