@@ -7,7 +7,7 @@ Drop a magnet link, WATCHME downloads the movie and streams it to any device on 
 <p align="center">
   <img src="https://img.shields.io/badge/Go-1.24-00ADD8?style=flat&logo=go" />
   <img src="https://img.shields.io/badge/Vite-6-646CFF?style=flat&logo=vite" />
-  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat&logo=postgresql" />
+  <img src="https://img.shields.io/badge/PostgreSQL-15-336791?style=flat&logo=postgresql" />
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker" />
 </p>
 
@@ -63,7 +63,7 @@ docker compose up -d
 
 ### Manual (Development)
 
-**Prerequisites:** Go 1.24+, Node.js 22+, PostgreSQL 16
+**Prerequisites:** Go 1.24+, Node.js 22+, PostgreSQL 15
 
 ```bash
 # Backend
@@ -144,7 +144,7 @@ After first setup, configure in Settings:
 | Layer | Technology |
 |-------|-----------|
 | Backend | Go 1.24, Fiber, GORM |
-| Database | PostgreSQL 16 |
+| Database | PostgreSQL 15 |
 | Torrent | anacrolix/torrent |
 | Frontend | Vite, Vanilla JS, Three.js |
 | Styling | CSS (glassmorphism, GLSL shaders) |
