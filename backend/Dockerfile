@@ -14,7 +14,7 @@ RUN CGO_ENABLED=1 go build -o watchme .
 # ── Production Stage ──────────────────────────────────────────────
 FROM alpine:3.20
 
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata libstdc++ libgcc
 
 WORKDIR /app
 COPY --from=builder /app/watchme .
