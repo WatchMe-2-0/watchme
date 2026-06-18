@@ -27,17 +27,39 @@ Drop a magnet link, WATCHME downloads the movie and streams it to any device on 
 
 ---
 
-## Quick Start
+## Quick Start (Recommended)
 
-### Docker (Recommended)
+To get started quickly, clone the repository and run the startup script for your operating system. These scripts will automatically download dependencies, start the Docker containers, and ensure everything is running correctly.
 
 ```bash
 git clone https://github.com/WatchMe-2-0/watchme.git
 cd watchme
-docker compose up -d
 ```
 
-Open `http://localhost:3000` in your browser.
+**Windows:**
+Double-click `run-windows.bat` or run:
+```bat
+run-windows.bat
+```
+
+**macOS:**
+```bash
+./run-mac.sh
+```
+
+**Linux:**
+```bash
+./run-linux.sh
+```
+
+The application will be available in your browser at `http://localhost:3000`.
+
+### Manual Docker Setup
+
+If you prefer to start the containers manually:
+```bash
+docker compose up -d
+```
 
 ### Manual (Development)
 
