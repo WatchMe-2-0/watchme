@@ -151,8 +151,17 @@ func main() {
 	authenticated.Delete("/downloads/:id", handlers.HandleCancelDownload)
 	authenticated.Get("/downloads/progress", handlers.HandleDownloadProgress)
 
-	// Placeholder routes (will be implemented in Part 5)
-	// authenticated.Get("/tmdb/trending", ...)
+	// TMDB routes (browse movies)
+	tmdbGroup := authenticated.Group("/tmdb")
+	tmdbGroup.Get("/search", handlers.HandleTMDBSearch)
+	tmdbGroup.Get("/trending", handlers.HandleTMDBTrending)
+	tmdbGroup.Get("/top-rated", handlers.HandleTMDBTopRated)
+	tmdbGroup.Get("/genre/:id", handlers.HandleTMDBByGenre)
+	tmdbGroup.Get("/genres", handlers.HandleTMDBGenres)
+	tmdbGroup.Get("/movie/:id", handlers.HandleTMDBMovieDetail)
+
+	// TMDB poster proxy (no auth for image loading)
+	api.Get("/tmdb/poster/*", handlers.HandleTMDBPosterProxy)
 
 	// ── Start Server ───────────────────────────────────────────────
 	port := cfg.ServerPort
